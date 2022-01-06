@@ -3,7 +3,6 @@ library matrix_gesture_detector;
 import 'dart:math';
 
 import 'package:flutter/widgets.dart';
-import 'package:vector_math/vector_math_64.dart';
 
 typedef MatrixGestureDetectorCallback = void Function(
     Matrix4 matrix,
@@ -21,6 +20,10 @@ class MatrixGestureDetector extends StatefulWidget {
   /// [Matrix4] change notification callback
   ///
   final MatrixGestureDetectorCallback onMatrixUpdate;
+
+  /// [Matrix4] callback for notify the update ended.
+  ///
+  final GestureScaleEndCallback? onMatrixUpdateEnd;
 
   /// The [child] contained by this detector.
   ///
@@ -59,13 +62,14 @@ class MatrixGestureDetector extends StatefulWidget {
   const MatrixGestureDetector({
     Key? key,
     required this.onMatrixUpdate,
+    this.onMatrixUpdateEnd,
     required this.child,
     this.shouldTranslate = true,
     this.shouldScale = true,
     this.shouldRotate = true,
     this.clipChild = true,
     this.focalPointAlignment,
-  })  : super(key: key);
+  }) : super(key: key);
 
   @override
   _MatrixGestureDetectorState createState() => _MatrixGestureDetectorState();
@@ -113,6 +117,7 @@ class _MatrixGestureDetectorState extends State<MatrixGestureDetector> {
     return GestureDetector(
       onScaleStart: onScaleStart,
       onScaleUpdate: onScaleUpdate,
+      onScaleEnd: onScaleEnd,
       child: child,
     );
   }
@@ -149,9 +154,9 @@ class _MatrixGestureDetectorState extends State<MatrixGestureDetector> {
     }
 
     final focalPointAlignment = widget.focalPointAlignment;
-    final focalPoint = focalPointAlignment == null ?
-      details.localFocalPoint :
-      focalPointAlignment.alongSize(context.size!);
+    final focalPoint = focalPointAlignment == null
+        ? details.localFocalPoint
+        : focalPointAlignment.alongSize(context.size!);
 
     // handle matrix scaling
     if (widget.shouldScale && details.scale != 1.0) {
@@ -169,6 +174,12 @@ class _MatrixGestureDetectorState extends State<MatrixGestureDetector> {
 
     widget.onMatrixUpdate(
         matrix, translationDeltaMatrix, scaleDeltaMatrix, rotationDeltaMatrix);
+  }
+
+  void onScaleEnd(ScaleEndDetails details) {
+    if (widget.onMatrixUpdateEnd != null) {
+      widget.onMatrixUpdateEnd!(details);
+    }
   }
 
   Matrix4 _translate(Offset translation) {

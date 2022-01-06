@@ -2,7 +2,6 @@ import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:matrix_gesture_detector/matrix_gesture_detector.dart';
 import 'package:path_drawing/path_drawing.dart';
 
