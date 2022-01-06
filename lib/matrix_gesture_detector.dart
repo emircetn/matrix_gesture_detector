@@ -17,6 +17,10 @@ typedef MatrixGestureDetectorCallback = void Function(
 /// parameters.
 ///
 class MatrixGestureDetector extends StatefulWidget {
+  /// [Matrix4] callback for notify the update started.
+  ///
+  final GestureScaleStartCallback? onMatrixUpdateStarted;
+
   /// [Matrix4] change notification callback
   ///
   final MatrixGestureDetectorCallback onMatrixUpdate;
@@ -61,6 +65,7 @@ class MatrixGestureDetector extends StatefulWidget {
 
   const MatrixGestureDetector({
     Key? key,
+    this.onMatrixUpdateStarted,
     required this.onMatrixUpdate,
     this.onMatrixUpdateEnd,
     required this.child,
@@ -139,6 +144,9 @@ class _MatrixGestureDetectorState extends State<MatrixGestureDetector> {
     translationUpdater.value = details.focalPoint;
     scaleUpdater.value = 1.0;
     rotationUpdater.value = 0.0;
+    if (widget.onMatrixUpdateStarted != null) {
+      widget.onMatrixUpdateStarted!(details);
+    }
   }
 
   void onScaleUpdate(ScaleUpdateDetails details) {
